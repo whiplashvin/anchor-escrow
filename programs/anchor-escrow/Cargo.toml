@@ -21,7 +21,8 @@ custom-panic = []
 
 
 [dependencies]
-anchor-lang = "1.1.2"
+anchor-lang = {version = "1.1.2", features = ["init-if-needed"]}
+anchor-spl = "1.1.2"
 
 [dev-dependencies]
 litesvm = "0.10.0"
@@ -31,5 +32,5 @@ solana-signer = "3.0.0"
 solana-keypair = "3.0.1"
 
 
-[lints.rust]
-unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }
+# [lints.rust]
+# unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }
