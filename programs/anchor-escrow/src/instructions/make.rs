@@ -10,7 +10,7 @@ use anchor_spl::{
 #[instruction(seed: u64)]
 pub struct Make<'info> {
     #[account(mut)]
-    pub maker: Singer<'info>,
+    pub maker: Signer<'info>,
     #[account(
         init,
         payer=maker,
@@ -39,6 +39,6 @@ pub struct Make<'info> {
     )]
     pub vault: InterfaceAccount<'info, TokenAccount>,
     pub associated_token_program: Program<'info, AssociatedToken>,
-    pub token_program: Interface<'info, TokneInterface>,
+    pub token_program: Interface<'info, TokenInterface>,
     pub system_program: Program<'info, System>
 }
