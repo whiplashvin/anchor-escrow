@@ -3,15 +3,8 @@ use crate::state::Escrow;
 use anchor_lang::prelude::*;
 
 use anchor_spl::{
-    associated_token:: AssociatedToken,
-    token_interface::{
-        close_account,
-        transfer_checked,
-        CloseAccount,
-        Mint, 
-        TokenAccount,
-        TokenInterface,
-        TransferChecked
+    associated_token:: AssociatedToken, token::{CloseAccount, close_account}, token_interface::{
+         Mint, TokenAccount, TokenInterface, TransferChecked, transfer_checked
     }
 };
 
@@ -85,4 +78,45 @@ impl<'info> Take <'info>{
         )?;
         Ok(())
     }
+
+    fn withdraw_and_close_vault(&mut self) -> Result<()>{
+        let signer_seeds: [&[&[u8]];1] = [&[
+            b"escrow",
+            self.maker.to_account_info().key.as_ref(),
+            &self.escrow.seed.to_le_bytes()[..],
+            &[self.escrow.bump]
+        ]];
+        transfer_checked(
+            CpiContext::new_with_signer(
+                self.token_program.key(), 
+                TransferChecked { 
+                    from: self.vault.to_account_info(), 
+                    mint: self.mint_a.to_account_info(), 
+                    to: self.taker_ata_a.to_account_info(), 
+                    authority: self.escrow.to_account_info() 
+                },
+                &signer_seeds,
+            ),
+             self.vault.amount, 
+             self.mint_a.decimals
+        )?;
+
+        close_account(
+            CpiContext::new_with_signer(
+                self.token_program.key(), 
+                CloseAccount {
+                    account: self.vault.to_account_info(),
+                    authority: self.escrow.to_account_info(),
+                    destination: self.maker.to_account_info(),
+                }, 
+                &signer_seeds
+        ))?;
+        Ok(())
+    }
+}
+
+pub fn handler(ctx: Context<Take>) -> Result<()> {
+    ctx.accounts.transfer_to_maker();
+    ctx.accounts.withdraw_and_close_vault();
+    Ok(())
 }
