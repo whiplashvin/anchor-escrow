@@ -64,7 +64,7 @@ impl<'info> Refund<'info> {
                 self.token_program.key(), 
                 TransferChecked {
                     from: self.vault.to_account_info(),
-                    to: self.maker.to_account_info(),
+                    to: self.maker_ata_a.to_account_info(),
                     mint: self.mint_a.to_account_info(),
                     authority: self.escrow.to_account_info(),
                 }, 
